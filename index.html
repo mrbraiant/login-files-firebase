@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Auth Project</title>
+
+    <style>
+      *{margin:0;padding:0;box-sizing: border-box;}
+      body{
+          background-color: rgb(230,230,230);
+      }
+  </style>
+</head>
+<body>
+    <script src="https://www.gstatic.com/firebasejs/8.6.3/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.5.0/firebase-auth.js"></script>  
+    <script src="https://www.gstatic.com/firebasejs/8.5.0/firebase-firestore.js"></script>  
+    <script src="https://www.gstatic.com/firebasejs/8.5.0/firebase-storage.js"></script>  
+    
+    <script type="module">
+        // Firebase configuration
+        const firebaseConfig = {
+          apiKey: "AIzaSyB9XN8nzYwjeUtVZiFE2L4yvOjlIoVjphY",
+          authDomain: "auth-7c782.firebaseapp.com",
+          projectId: "auth-7c782",
+          storageBucket: "auth-7c782.appspot.com",
+          messagingSenderId: "774252797731",
+          appId: "1:774252797731:web:26be80a269c6c3fa3a7696"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        const storage = firebase.storage();
+        const db = firebase.firestore();
+
+        const formClient = document.querySelector('#client-form')
+
+        formClient.addEventListener('submit', (e) => {
+          e.preventDefault();
+          
+          let attachmentText = document.querySelector('[name=attachment]').value;
+          let file = document.querySelector('[name=file]').files[0];
+
+          const uploadTask = storage.ref('documents/'+file.name).put(file);
+
+          uploadTask.on('state_changed', (snapshot) => {
+            const progress = (snapshot.bytesTransferred/snapshot.totalBytes) * 1;
+            console.log('progress', progress);
+          })
+          console.log('Successfully uploaded');
+
+        })
+      </script>
+
+    <form id="client-form">
+      <textarea name="attachment"></textarea>
+      <input type="file" name="file" />
+      <input type="submit" name="action" value="Send" />
+    </form>
+
+</body>
+</html>
