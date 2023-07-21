@@ -50,7 +50,14 @@
             const progress = (snapshot.bytesTransferred/snapshot.totalBytes) * 1;
             console.log('progress', progress);
           })
-          console.log('Successfully uploaded');
+
+          // sending file url to database
+          storage.ref('documents/'+file.name).getDownloadURL().then((url) => {
+            db.collection('documents').add({
+              description: attachmentText,
+              filelURL: url
+            })
+          })
 
         })
       </script>
