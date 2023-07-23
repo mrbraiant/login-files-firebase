@@ -9,7 +9,56 @@
     <style>
       *{margin:0;padding:0;box-sizing: border-box;}
       body{
-          background-color: rgb(230,230,230);
+          /* background-color: rgb(230,230,230); */
+          background-image: url('https://www.cliffsofmoher.ie/wp-content/uploads/2021/11/Cliffs-of-Moher.jpg');
+          background-repeat: no-repeat;
+          padding: 2rem;
+          height: 100vh;
+      }
+      .container{
+        display: flex; 
+        height: 100%;
+      }
+      .client{
+        opacity: 0.8;
+        margin: auto; 
+        background-color: #cee4f6;
+        max-width: fit-content;
+        width: 100%;
+        padding: 2rem;
+        text-align: center;
+      }
+      .client h2{
+        margin-bottom: 1rem;
+      }
+      .client form{
+        display: flex; 
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 1rem;
+      }
+      .client label {
+        margin: 1rem 0 -0.5rem;
+        align-self: flex-start;
+      }
+      .client textarea{
+        width: 100%;
+        height: 120px;
+        border-radius: 5px;
+      }
+      .client input[type=file]{
+        border: 1px solid #329be8;
+        border-radius: 5px;
+      }
+      .client input[type=submit]{
+        width: 100%;
+        height: 30px;
+        background-color: #329be8;
+        color: white;
+        border: 0;
+        border-radius: 5px;
+        cursor: pointer;
       }
   </style>
 </head>
@@ -20,53 +69,69 @@
     <script src="https://www.gstatic.com/firebasejs/8.5.0/firebase-storage.js"></script>  
     
     <script type="module">
-        // Firebase configuration
-        const firebaseConfig = {
-          apiKey: "AIzaSyB9XN8nzYwjeUtVZiFE2L4yvOjlIoVjphY",
-          authDomain: "auth-7c782.firebaseapp.com",
-          projectId: "auth-7c782",
-          storageBucket: "auth-7c782.appspot.com",
-          messagingSenderId: "774252797731",
-          appId: "1:774252797731:web:26be80a269c6c3fa3a7696"
-        };
+      // Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyB9XN8nzYwjeUtVZiFE2L4yvOjlIoVjphY",
+        authDomain: "auth-7c782.firebaseapp.com",
+        projectId: "auth-7c782",
+        storageBucket: "auth-7c782.appspot.com",
+        messagingSenderId: "774252797731",
+        appId: "1:774252797731:web:26be80a269c6c3fa3a7696"
+      };
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
 
-        const storage = firebase.storage();
-        const db = firebase.firestore();
+      const storage = firebase.storage();
+      const db = firebase.firestore();
 
-        const formClient = document.querySelector('#client-form')
+      const formClient = document.querySelector('#client-form')
 
-        formClient.addEventListener('submit', (e) => {
-          e.preventDefault();
-          
-          let attachmentText = document.querySelector('[name=attachment]').value;
-          let file = document.querySelector('[name=file]').files[0];
+      formClient.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        let attachmentText = document.querySelector('[name=attachment]').value;
+        let file = document.querySelector('[name=file]').files[0];
 
-          const uploadTask = storage.ref('documents/'+file.name).put(file);
+        const uploadTask = storage.ref('documents/'+file.name).put(file);
 
-          uploadTask.on('state_changed', (snapshot) => {
-            const progress = (snapshot.bytesTransferred/snapshot.totalBytes) * 1;
-            console.log('progress', progress);
-          })
-
-          // sending file url to database
-          storage.ref('documents/'+file.name).getDownloadURL().then((url) => {
-            db.collection('documents').add({
-              description: attachmentText,
-              filelURL: url
-            })
-          })
-
+        uploadTask.on('state_changed', (snapshot) => {
+          const progress = (snapshot.bytesTransferred/snapshot.totalBytes) * 1;
+          console.log('progress', progress);
         })
-      </script>
 
-    <form id="client-form">
-      <textarea name="attachment"></textarea>
-      <input type="file" name="file" />
-      <input type="submit" name="action" value="Send" />
-    </form>
+        // sending file url to database
+        storage.ref('documents/'+file.name).getDownloadURL().then((url) => {
+          db.collection('documents').add({
+            description: attachmentText,
+            filelURL: url
+          })
+        })
 
+      })
+    </script>
+      <!-- script for login admin -->
+    <script>
+
+    </script>
+
+    <!-- Client area -->
+    <div class="container">
+      <div class="client">
+        <h2>Work with me</h2>
+        <form id="client-form">
+          <textarea name="attachment" placeholder="Write here a brief resume about your experience"></textarea>
+          <label for="file">Attach your resume or CV bellow</label>
+          <input type="file" name="file" id="file" />
+          <input type="submit" name="action" value="Send" />
+        </form>
+      </div>
+
+      <!-- Admin area -->
+      <div style="display: none;" class="admin">
+        <a href="#">Login</a>
+
+      </div>
+  </div>
 </body>
 </html>
