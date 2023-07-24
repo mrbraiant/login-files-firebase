@@ -27,6 +27,7 @@
         width: 100%;
         padding: 2rem;
         text-align: center;
+        border-radius: 15px;
       }
       .client h2{
         margin-bottom: 1rem;
@@ -60,6 +61,33 @@
         border-radius: 5px;
         cursor: pointer;
       }
+      .admin{
+        display: flex;
+        align-items: center;
+        opacity: 0.9;
+        margin: auto; 
+        background-color: #cee4f6;
+        width: 100%;
+        max-width: fit-content;
+        height: 200px;
+        padding: 2rem;
+        text-align: center;
+        border-radius: 15px;
+      }
+      .admin button{
+        font-size: x-large;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem;
+        border-radius: 5px;
+        border: 0;
+        cursor: pointer;
+      }
+      .admin img{
+        width: 35px;
+        height: 35px;
+      }
   </style>
 </head>
 <body>
@@ -84,6 +112,9 @@
 
       const storage = firebase.storage();
       const db = firebase.firestore();
+      const auth = firebase.auth();
+
+      const provider = new firebase.auth.GoogleAuthProvider();
 
       const formClient = document.querySelector('#client-form')
 
@@ -98,40 +129,74 @@
         uploadTask.on('state_changed', (snapshot) => {
           const progress = (snapshot.bytesTransferred/snapshot.totalBytes) * 1;
           console.log('progress', progress);
-        })
+        },
+        function(error){
 
-        // sending file url to database
-        storage.ref('documents/'+file.name).getDownloadURL().then((url) => {
+        },
+        function(){
+          // sending file url to database
+          storage.ref('documents/'+file?.name).getDownloadURL().then((url) => {
           db.collection('documents').add({
             description: attachmentText,
             filelURL: url
+            })
           })
         })
-
       })
-    </script>
-      <!-- script for login admin -->
-    <script>
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const myParam = urlParams.get('admin');
+
+      // script for login admin
+      if(myParam != null){
+        // I'm Admin
+        const adminArea = document.querySelector('.admin').style.display = 'flex';
+      } else{
+        // I'm user
+        const clientArea = document.querySelector('.client').style.display = 'block';
+      };
+
+      const loginBtn = document.getElementById('login');
+      loginBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        auth.signInWithPopup(provider);
+      })
+
+      auth.onAuthStateChanged((val) => {
+        if(val.email === 'mrbraiant@gmail.com'){
+          loginBtn.style.display = 'none';
+          // document.querySelector('.admin').style.display = 'none';
+          document.querySelector('.requirements-list').style.display = 'block';
+          alert('You are signed successfully :)');
+        } else{
+          alert("Sorry, this is an invalid email");
+        }
+      })
 
     </script>
 
     <!-- Client area -->
     <div class="container">
-      <div class="client">
-        <h2>Work with me</h2>
-        <form id="client-form">
-          <textarea name="attachment" placeholder="Write here a brief resume about your experience"></textarea>
-          <label for="file">Attach your resume or CV bellow</label>
-          <input type="file" name="file" id="file" />
-          <input type="submit" name="action" value="Send" />
-        </form>
-      </div>
+    <div class="client" style="display: none;">
+      <h2>Work with me</h2>
+      <form id="client-form">
+        <textarea name="attachment" placeholder="Write here a brief resume about your experience"></textarea>
+        <label for="file">Attach your resume or CV bellow</label>
+        <input type="file" name="file" id="file" />
+        <input type="submit" name="action" value="Send" />
+      </form>
+    </div>
 
-      <!-- Admin area -->
-      <div style="display: none;" class="admin">
-        <a href="#">Login</a>
-
+    <!-- Admin area -->
+    <div class="admin" style="display: none;">
+      <button id="login">
+       <img src="https://image.similarpng.com/very-thumbnail/2020/12/Illustration-of-Google-icon-on-transparent-background-PNG.png"/>
+       Sign in with Google
+      </button>
+      <div class="requirements-list" style="display: none;">
+        <h2>Last requirements</h2>
       </div>
+    </div>
   </div>
 </body>
 </html>
